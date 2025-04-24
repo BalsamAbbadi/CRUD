@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRUD System</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fefeff;
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #444;
+    }
+    input, textarea, button {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #fff;
+    }
+    input:focus, textarea:focus {
+      border-color: #6c5ce7;
+      outline: none;
+    }
+    button {
+      background-color: green;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button.delete-all {
+      background-color: #d63031;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+      background-color: #fff;
+      border: 1px solid #eee;
+    }
+    th, td {
+      padding: 0.8rem;
+      border: 1px solid #eee;
+      text-align: center;
+    }
+    th {
+      background-color: #f1f2f6;
+      color: #555;
+    }
+    .actions button {
+      margin: 0 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>CRUD System</h1>
+  <input type="text" id="name" placeholder="course name" required />
+  <input type="text" id="category" placeholder="course category" required />
+  <input type="number" id="price" placeholder="course price" required />
+  <textarea id="description" placeholder="course description" required></textarea>
+  <input type="number" id="capacity" placeholder="course capacity" required />
+  <button onclick="addCourse()">Add Course</button>
+  <button onclick="clearForm()">Clear</button>
+  <input type="text" id="search" placeholder="Search..." onkeyup="searchCourses()" />
+  <button class="delete-all" onclick="deleteAll()">Delete All</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Description</th>
+        <th>Capacity</th>
+        <th>Update</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody id="courseTable"></tbody>
+  </table>
+
+  <script>
+    let courses = [];
+    let editIndex = null;
+
+    function renderTable() {
+      const table = document.getElementById('courseTable');
+      table.innerHTML = '';
+      courses.forEach((course, i) => {
+        const row = `<tr>
+          <td>${i + 1}</td>
+          <td>${course.name}</td>
+          <td>${course.category}</td>
+          <td>${course.price}</td>
+          <td>${course.description}</td>
+          <td>${course.capacity}</td>
+          <td class="actions"><button onclick="editCourse(${i})">Edit</button></td>
+          <td class="actions"><button onclick="deleteCourse(${i})">Delete</button></td>
+        </tr>`;
+        table.innerHTML += row;
+      });
+    }
+
+    function addCourse() {
+      const name = document.getElementById('name').value.trim();
+      const category = document.getElementById('category').value.trim();
+      const price = document.getElementById('price').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const capacity = document.getElementById('capacity').value.trim();
+
+      if (!name || !category || !price || !description || !capacity) {
+        alert('Please fill in all fields.');
+        return;
+      }
+
+      const course = { name, category, price, description, capacity };
+
+      if (editIndex === null) {
+        courses.push(course);
+      } else {
+        courses[editIndex] = course;
+        editIndex = null;
+      }
+      clearForm();
+      renderTable();
+    }
+
+    function clearForm() {
+      document.getElementById('name').value = '';
+      document.getElementById('category').value = '';
+      document.getElementById('price').value = '';
+      document.getElementById('description').value = '';
+      document.getElementById('capacity').value = '';
+    }
+
+    function editCourse(index) {
+      const course = courses[index];
+      document.getElementById('name').value = course.name;
+      document.getElementById('category').value = course.category;
+      document.getElementById('price').value = course.price;
+      document.getElementById('description').value = course.description;
+      document.getElementById('capacity').value = course.capacity;
+      editIndex = index;
+    }
+
+    function deleteCourse(index) {
+      courses.splice(index, 1);
+      renderTable();
+    }
+
+    function deleteAll() {
+      courses = [];
+      renderTable();
+    }
+
+    function searchCourses() {
+      const term = document.getElementById('search').value.toLowerCase();
+      const table = document.getElementById('courseTable');
+      table.innerHTML = '';
+      courses
+        .filter(course =>
+          course.name.toLowerCase().includes(term) ||
+          course.category.toLowerCase().includes(term) ||
+          course.description.toLowerCase().includes(term)
+        )
+        .forEach((course, i) => {
+          const row = `<tr>
+            <td>${i + 1}</td>
+            <td>${course.name}</td>
+            <td>${course.category}</td>
+            <td>${course.price}</td>
+            <td>${course.description}</td>
+            <td>${course.capacity}</td>
+            <td class="actions"><button onclick="editCourse(${i})">Edit</button></td>
+            <td class="actions"><button onclick="deleteCourse(${i})">Delete</button></td>
+          </tr>`;
+          table.innerHTML += row;
+        });
+    }
+  </script>
+</body>
+</html>
